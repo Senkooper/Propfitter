@@ -1,0 +1,88 @@
+AddCSLuaFile('autorun/client/propoutfitter_cl.lua')
+AddCSLuaFile('propoutfitter_shared.lua')
+include('propoutfitter_shared.lua')
+
+
+require('supernet')
+
+
+supernet.clientReceive('propoutfitterClientGetGma')
+
+supernet.receive('propoutfitterGetGMA',function(msg) 
+	local fileSize = 0
+    print(msg.plr:SteamID64())
+    --PrintTable(msg.plr)
+    local gma
+    local workshopId
+    local data
+	msg.onData = function()
+        workshopId = net.ReadUInt64()
+
+        if fileSize == 0 then
+            fileSize = net.ReadUInt(32)
+            msg.onData = function()
+                data = data..net.ReadData(net.ReadUInt(32))
+            end
+        end
+        data = net.ReadData(net.ReadUInt(32))
+	end
+	msg.ended = function()
+        steamworks.FileInfo(workshopId,function(info)
+            if info.size == 0 then
+                data = nil
+                workshopId = nil
+                return
+            end
+
+
+           -- file.Append(path,data)
+           print('\n')
+            PrintTable(info)
+            print('\n')
+           -- print('NYESSSOMGEDENDED PROPOUTFITTER')
+            local meta,errmsg = GMA.parse(data)--file.Open(path,'rb','DATA'))
+
+            if meta then
+
+
+               
+
+                GMA.stripLua(meta)
+                local path = 'cache/workshop/'..workshopId..msg.plr:SteamID64()..'.gma'
+                PrintTable(meta)
+                errmsg = GMA.build(meta,file.Open(path,'wb','DATA'))
+                if not errmsg then
+                    local success, gmafiles = game.MountGMA('data/'..path)
+                    if success then
+                        PrintTable(gmafiles)
+                    else
+                        file.Delete(path,'DATA')
+                    end
+                end
+
+                
+
+                --[[GMA.stripLua(meta)
+                local finalPath = 'cache/workshop/'..workshopId..'.gma'
+                local finalGma = file.Open(finalPath,'wb','DATA')
+                GMA.build(meta,finalGma)
+                gma:Close()
+                file.Delete(path,'DATA')
+                local success, gmafiles = game.MountGMA('data/'..finalPath)
+                if success then
+                    PrintTable(gmafiles)
+                end
+                local sendMsg = supernet.msg('propoutfitterClientGetGma',function()
+                    net.SendOmit(msg.plr)
+                end)
+                supernet.write(function()
+                    net.WriteUInt64(workshopId)
+                end,64,sendMsg)
+                supernet.send(sendMsg)]]
+            end
+            data = nil
+            workshopId = nil
+        end)
+        
+    end
+end,1000)
