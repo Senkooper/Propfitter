@@ -173,20 +173,7 @@ function menuCreate()
             </style>
         </head>
         <body style="margin: 4px; background-color: rgb(100,100,100); overflow-x: hidden;">
-
-
-            
-                    
-                    <img onmouseenter="propfitter.addonHover()" src="https://images.steamusercontent.com/ugc/760472985785287638/5319B2E8CC39B626EA199DC2CCACDA4481E1E96D/">
-      
-                
-                 
-                
-                
-    
-
-                
-                 
+            <img onmouseenter="propfitter.addonHover()" src="https://images.steamusercontent.com/ugc/760472985785287638/5319B2E8CC39B626EA199DC2CCACDA4481E1E96D/">
         </body
     ]])
 
