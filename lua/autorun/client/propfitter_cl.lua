@@ -146,8 +146,7 @@ function menuCreate()
     end)
 
     addonsDisplay:SetHTML([[
-        
-         <head>
+        <head>
             <style>
                 *{
                     box-sizing: border-box;
