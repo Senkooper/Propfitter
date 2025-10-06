@@ -146,6 +146,8 @@ function menuCreate()
     end)
 
     addonsDisplay:SetHTML([[
+
+    
         <head>
             <style>
                 *{
