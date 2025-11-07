@@ -8,8 +8,8 @@
         .body{
             width: 1000px;
             height: 600px;
-            background-color: gray;
             font-family: Arial, Helvetica, sans-serif;
+            background-color: gray;
         }
 
         *{
@@ -34,12 +34,17 @@
         }
         
         h3{
-            margin: 0.5rem 0;
+            box-sizing: content-box;
+            border-bottom: solid 0.5rem darkgray;
+            background-color: darkgray;
+            border-top: solid 0.5rem darkgray;
         }   
 
         h2{
-            margin: 0.5rem 0;
-            
+            box-sizing: content-box;
+            border-bottom: solid 0.5rem darkgray;
+            background-color: darkgray;
+            border-top: solid 0.5rem darkgray;
         }
 
         .addons h3:hover{
@@ -49,6 +54,13 @@
         
 
 
+
+        .addons h3{
+            box-sizing: border-box;
+            border: unset;
+            background-color: unset;
+            margin: 0.5rem 0;
+        }
        
 
      
@@ -62,7 +74,7 @@
 
         .spawn-models{
             flex-grow: 1;
-            background-color: darkgray;
+            
             display: none;
             overflow: hidden;
         }
@@ -88,14 +100,15 @@
 
 
         section:has(>h2){
-            background-color: gray;
-            padding: var(--gap);
+            
+            border: solid var(--gap) darkgray;
             display: flex;
             flex-direction: column;
             
         }
 
         .spawn-models *:has(>h3){
+            border-bottom: var(--gap) solid darkgray;;
             display: flex;
             flex-direction: column;
         }
@@ -113,9 +126,8 @@
             flex-wrap: wrap;
     
 
-            padding: 0.5rem;
+            padding: 0 0.5rem;
             
-             background-color: gray;
              overflow: auto;
              display: flex;
              flex-grow: 1;
@@ -134,9 +146,7 @@
             width: 100%;
         }
 
-        .addons{
-            background-color: darkgray;
-        }
+        
 
         
 
@@ -245,15 +255,11 @@
        
         .addons ul{
 
-            border-top: var(--gap) solid gray;
-            border-bottom: var(--gap) solid gray;
-            padding-top: 0;
-            padding-bottom: 0;
+            margin: var(--gap) 0;
         }
         .addon-ctrl{
-            margin-top: var(--gap);
+            
             padding: var(--gap);
-            background-color: gray;
         }
 
         .addon-highlight{
@@ -320,7 +326,7 @@
                     <span>Selected model path:</span>
                     <span id="spawned-model-path-text"></span>
                 </div>
-                <div>
+                <div style="opacity: 1; flex-grow: 1;">
                     
                 </div>
             </section>
@@ -559,3 +565,5 @@
 </body>
 
 </html>
+
+

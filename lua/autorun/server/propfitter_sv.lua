@@ -13,12 +13,9 @@ util.AddNetworkString('propfitter_workshopGet')
 util.AddNetworkString('propfitter_workshopErr')
 
 hook.Add( "InitPostEntity", "Ready", function()
-   local fls = file.Find('cache/workshop/*','DATA')
 
-  for i,f in ipairs(fls) do
-	print('DELETING CACHED WORKSHOP ITEMS')
-	file.Delete('cache/workshop/'..f)
-  end
+	clearAllFiles('cache/workshop')
+
     
 end )
 
@@ -57,7 +54,9 @@ end)
 
 
 
-function sendWorkshopErr(errCode,plr)
+function getAddonFail(id,errCode,plr)
+
+	pendingItems[id] = nil
 	if not plr then
 		print('[propfitter ERROR!]:\n '+errMsgs[errCode])
 		return
@@ -68,6 +67,18 @@ function sendWorkshopErr(errCode,plr)
 end
 
 
+
+local function sendAddon(id,addon)
+	
+	net.Start('propfitter_workshopGet')
+	net.WriteUInt64(id)
+	net.WriteString(addon.info.title)
+	net.WriteInt(addon.info.time_updated,32)
+	net.WriteString(addon.info.preview_url)
+	net.Broadcast()
+	pendingItems[id] = nil
+	workshopItems[id] = item
+end
 
 function getWorkshopItem(id,plrDat,plr)
 	print('getting item '..id)
@@ -96,16 +107,14 @@ function getWorkshopItem(id,plrDat,plr)
 			local response = util.JSONToTable(body).response
 
 			if response == nil then
-				pendingItems[id] = nil
-				sendWorkshopErr(NO_RESPONSE,plr)
+				getAddonFail(id,NO_RESPONSE,plr)
 				return
 			end
 
 			local info = response.publishedfiledetails[1]
 
 			if info.result ~= 1 then
-				pendingItems[id] = nil
-				sendWorkshopErr(INVALID_RESPONSE,plr)
+				getAddonFail(id,INVALID_RESPONSE,plr)
 				return
 			end
 
@@ -115,18 +124,14 @@ function getWorkshopItem(id,plrDat,plr)
 			if file.Exists(gmaPath,'DATA') then
 				game.MountGMA('data/'..gmaPath)
 				item.info = info
-				net.Start('propfitter_workshopGet')
-				net.WriteUInt64(id)
-				net.WriteInt(info.time_updated,32)
-				net.Broadcast()
-				pendingItems[id] = nil
-				workshopItems[id] = item
+
+				sendAddon(id,item)
+
 				return
 			end
 
 			if info.consumer_app_id ~= 4000 then
-				pendingItems[id] = nil
-				sendWorkshopErr(NOT_GMOD_ADDON,plr)
+				getAddonFail(id,NOT_GMOD_ADDON,plr)
 				return 
 			end
 
@@ -135,14 +140,13 @@ function getWorkshopItem(id,plrDat,plr)
 				item.maxSize = tonumber(info.file_size)
 				
 				if item.maxSize > LIMIT_SIZE_TOTAL-plrDat.totalItemsSize then
-					pendingItems[id] = nil
-					sendWorkshopErr(TO_BIG,plr)
+					getAddonFail(id,TO_BIG,plr)
 					return 
 				end
 				
 			else
 				if tonumber(info.file_size) > item.maxSize then
-					sendWorkshopErr(TO_BIG,plr)
+					getAddonFail(id,TO_BIG,plr)
 					return
 				end
 			end
@@ -154,9 +158,7 @@ function getWorkshopItem(id,plrDat,plr)
 			steamworks.DownloadUGC(id,function(path,fl,status)
 			
 				if not path then
-					pendingItems[id] = nil
-					print('A MASSIVE ERROR')
-					sendWorkshopErr(DOWNLOAD_FAIL,plr)
+					getAddonFail(id,DOWNLOAD_FAIL,plr)
 					return
 				end
 				local flDat = fl:Read()
@@ -166,16 +168,14 @@ function getWorkshopItem(id,plrDat,plr)
 					if item.numUpdates == 0 then
 						flDat = util.Decompress(flDat,LIMIT_SIZE_TOTAL-plrDat.totalItemsSize)
 						if not flDat then
-							pendingItems[id] = nil
-							print('YEP NOT WORKY')
-							sendWorkshopErr(UNCOMPRESSED_TO_BIG,plr)
+							getAddonFail(id,UNCOMPRESSED_TO_BIG,plr)
 							return
 						end
 					else
 						flDat = util.Decompress(flDat,item.maxSize)
 						if not flDat then
-							print('YEP NOT WORKY')
-							sendWorkshopErr(UNCOMPRESSED_TO_BIG,plr)
+							
+							getAddonFail(id,UNCOMPRESSED_TO_BIG,plr)
 							return
 						end
 					end
@@ -188,22 +188,19 @@ function getWorkshopItem(id,plrDat,plr)
 				local err = mountGMA(id,flDat,gmaPath,false)
 				if err then
 					print('DOWNLOADUGC RESULT WTF SHITASS LANG 3123123',status,err,string.len(flDat),string.GetExtensionFromFilename(path))
-					pendingItems[id] = nil
-					sendWorkshopErr(err,plr)
+					getAddonFail(id,err,plr)
+
 					return
 				end
 					plrDat.totalItemsSize = plrDat.totalItemsSize + string.len(flDat)
 					
 					item.maxSize = math.max(20000000,1.3*item.maxSize)
 					item.info = info
-					net.Start('propfitter_workshopGet')
-					net.WriteUInt64(id)
-					net.WriteInt(info.time_updated,32)
-					net.Broadcast()
+					
+					sendAddon(id,item)
 					
 					item.numUpdates = item.numUpdates + 1
-					pendingItems[id] = nil
-					workshopItems[id] = item
+					
 
 
 	
@@ -217,9 +214,9 @@ function getWorkshopItem(id,plrDat,plr)
 
 		-- onFailure function
 		function( message )
-			pendingItems[id] = nil
+			
 			print(message)
-			sendWorkshopErr(GET_ITEM_INFO_FAILED,plr)
+			getAddonFail(id,GET_ITEM_INFO_FAILED,plr)
 		end
 
 	)

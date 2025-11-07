@@ -518,67 +518,53 @@ hook.Add('InitPostEntity','propfitter_menuCreate',menuCreate)
 
 local function window()
 
-    //notify()
 
-   
-
-   
-
-     
-
-   
-    
-    //htmlPanel:OpenURL('https://cdn.steamusercontent.com/ugc/945093088397505143/D2DF9614A920133369A336147E499A64B8200D6D/')
-
-    //notification.AddLegacy(' addon upload reached\n Please wait till next server restart\n to re-upload addons.',NOTIFY_ERROR,15)
+    local testFame = vgui.Create('DFrame')
+    testFame:Center()
+    testFame:SetSize(1000,500)
+    testFame:SetDraggable(true)
 
   
-    blurAnimStart = SysTime()
-   
-      mainFrame:Show()
+    local testDhtml = vgui.Create('DHTML',testFame)
+    testDhtml:Dock(FILL)
 
- /*
+    testDhtml:SetHTML([[
+      
 
-      mainFrame:MoveToBack()
-
-    errSpace:Show()
-    errPopup:Show()
+             
 
 
-    
-    errHtml:Call([[
-        errMsgDisplay.textContent = 'jewish FIre'
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Document</title>
+            </head>
+            <body>
+                <svg  width="45" height="45" viewBox="0 0 20 20">
+                    <path fill="#de3031" d="M13.728 1H6.272L1 6.272v7.456L6.272 19h7.456L19 13.728V6.272zM11 15H9v-2h2zm0-4H9V5h2z"/>
+                </svg>
+            <div style="background-color: purple">HELLLO</div>
+            </body>
+            </html>
+            
+            
+
+           
+             
+
+      
+       
     ]])
+    //blurAnimStart = SysTime()0
     
-  */
-   
-
-    //errSpace:MakePopup()
-
-//    errSpace.Paint = function(self,w,h)
-  //      surface.SetDrawColor(0,0,0)
-    //    surface.DrawRect(0,0,w,h)
-    //end
+      //mainFrame:Show()
 
 
     
 
 end
---print(LocalPlayer():SteamID())
-
---if LocalPlayer():SteamID() == "STEAM_0:0:741579108" then--or LocalPlayer():SteamID() == "STEAM_0:0:59123135" then
-  --  window()
---end
-
-
-
---[[supernet.receive('propoutfitterClientGetGma',function(msg) 
-
-
-end)]]
-
-
-
 
 
 
@@ -664,6 +650,7 @@ net.Receive('propfitter_workshopGet',function()
     local id = net.ReadUInt64()
     local name = net.ReadString()
     local version = net.ReadInt(32)
+    local previewImgUrl = net.ReadString()
 
 
     print(id..'\n')

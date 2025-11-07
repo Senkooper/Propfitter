@@ -48,7 +48,7 @@ end
 function writeFile(path,contents)
 	local dir = string.GetPathFromFilename(path)
 
-	if not file.Exists(dir) then
+	if not file.Exists(dir,'DATA') then
 		file.CreateDir(dir)
 	end
 
