@@ -36,6 +36,25 @@ errMsgs[GET_ITEM_INFO_FAILED] = 'addon info request failed'
 
 
 
+function clearAllFiles(dir)
+	local fls = file.Find(dir..'/*','DATA')
+
+  	for i,f in ipairs(fls) do
+		print('DELETING CACHED WORKSHOP ITEMS')
+		file.Delete(dir..'/'..f)
+  	end
+end
+
+function writeFile(path,contents)
+	local dir = string.GetPathFromFilename(path)
+
+	if not file.Exists(dir) then
+		file.CreateDir(dir)
+	end
+
+	file.Write(path,contents)
+end
+
 function mountGMA(id,gmaDat,gmaPath,noOverwrites)
 	
 

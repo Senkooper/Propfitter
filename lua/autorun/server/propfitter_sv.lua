@@ -77,6 +77,9 @@ function getWorkshopItem(id,plrDat,plr)
 	
 	local item = workshopItems[id]
 	if item then
+		if item.numUpdates > 3 then
+			return
+		end
 		workshopItems[id] = nil
 	else
 		item = {info=nil,numUpdates=0,maxSize=0}
@@ -191,19 +194,16 @@ function getWorkshopItem(id,plrDat,plr)
 				end
 					plrDat.totalItemsSize = plrDat.totalItemsSize + string.len(flDat)
 					
-					item.maxSize = math.max(20,1.3*item.maxSize)
+					item.maxSize = math.max(20000000,1.3*item.maxSize)
 					item.info = info
 					net.Start('propfitter_workshopGet')
 					net.WriteUInt64(id)
 					net.WriteInt(info.time_updated,32)
 					net.Broadcast()
 					
-
-					if item.numUpdates < 3 then
-						pendingItems[id] = nil
-						workshopItems[id] = item
-					end
 					item.numUpdates = item.numUpdates + 1
+					pendingItems[id] = nil
+					workshopItems[id] = item
 
 
 	

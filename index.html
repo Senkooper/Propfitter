@@ -1,74 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .body{
+            width: 1000px;
+            height: 600px;
+            background-color: gray;
+            font-family: Arial, Helvetica, sans-serif;
+        }
 
-         <head>
-            <style>
-                *{
-                    box-sizing: border-box;
-                }
-                body{
-                    font-family: Arial, Helvetica, sans-serif;
-                }
-                body > div{
-                    width: calc(100% / 3 - 8px / 3);
-                }
+        *{
+            box-sizing: border-box;
+        }
+        h2,h3{
+            margin: 0;
+            
+        }
 
-                body > div > div{
-                    position: relative;
-                    opacity: 0;
-                    margin-top: -100%;
-                    padding-bottom: 100%;
+        .addons h3{
+            text-align: center;
+            text-wrap: wrap;
+            word-break: break-all;
+            max-height: 2.3em;
+            overflow: hidden;
+            
+        }
+
+        .hide{
+            display: none !important;
+        }
+        
+        h3{
+            margin: 0.5rem 0;
+        }   
+
+        h2{
+            margin: 0.5rem 0;
+            
+        }
+
+        .addons h3:hover{
+         
+            max-height: unset;
+        }
+        
 
 
-                }
+       
 
-                body > div > div > span{
-                    position: absolute;
-                    bottom: 4px;
-                    width: 100%;
-                    background-color: rgba(0, 0, 0,0.3);
-                    padding: .25em 0;
-                    text-align: center;
-                    color: white;
-                }
+     
+        .container{
+            display: flex;
+            
+            --gap: 0.5rem;
+            gap: var(--gap);
+            padding: 0 var(--gap);
+        }
 
-                body > div > div:hover{
-                    opacity: 1;
-                }
+        .spawn-models{
+            flex-grow: 1;
+            background-color: darkgray;
+            display: none;
+            overflow: hidden;
+        }
 
+        .spawn-models h2{
+            text-wrap: wrap;
+            word-break: break-all;
+            max-height: 2.3em;
+            overflow: hidden;
+        }
+
+        
+
+    
+       .spawn-models h2:hover{
+            max-height: unset;
+        }
+
+        h2 > *{
+            display: block;
+            width: 100%;
+        }
+
+
+        section:has(>h2){
+            background-color: gray;
+            padding: var(--gap);
+            display: flex;
+            flex-direction: column;
+            
+        }
+
+        .spawn-models *:has(>h3){
+            display: flex;
+            flex-direction: column;
+        }
+       
+        ul{
+
+            
+            margin: 0;
+            
+            padding: 0;
+            list-style: none;
+            display: flex;
+            --gap: 0.5rem;
+            gap: var(--gap);
+            flex-wrap: wrap;
+    
+
+            padding: 0.5rem;
+            
+             background-color: gray;
+             overflow: auto;
+             display: flex;
+             flex-grow: 1;
+            
+        }
+        li{
+            background-color: darkgray;
+            cursor: pointer;
+            height: fit-content;
+
+        }
+        .addons li:has(img){
+            width: calc((100% - var(--gap) * 3) / 4);
+        }
+        img{
+            width: 100%;
+        }
+
+        .addons{
+            background-color: darkgray;
+        }
+
+        
+
+      
+        
+
+        
+
+        .addons h2 + *{
+            display: flex;
+            gap: 0.5rem;
+        }
+
+         *:has(>ul){
+             flex-grow: 1;
+             overflow: hidden;
+            
+         }
+        
+        button{
+            width: fit-content;
+            padding: 0.3rem;
+        }
+
+        #spawn{
+            visibility: hidden;
+        }
+
+        .spawn-models li{
+            width: calc((100% - var(--gap) * 5) / 6);
+            
+        }
+
+        .model-img{
+            
+            width: 100%;
+
+            padding-top: 100%; /*evaluates to calc(aspect-ratio * 100%)*/
+       
+        }
+
+
+
+        .model-img:hover{
+            background-color: rebeccapurple;
+        }
+
+
+        #show-addon-bttn{
+            margin: auto 0;
+        }
+       
+
+        #show-addon-bttn input{
+            display: none;
+        }
+
+        #show-addon-bttn svg{
+            width: 1.5rem;
+            height: 1.5rem;
+            display: flex;
+     
+            transform: rotate(-90deg);
+        }
+
+        #show-addon-bttn:has(input:checked) svg{
+            transform: rotate(90deg);
+        }
+
+        #show-addon-bttn svg{
+            transition: all var(--transition-speed);
+        }
+
+        *:has(#show-addon-bttn input:checked) .addons li{
+            width: 100%;
+         
+        }
+
+        
+
+        #show-addon-bttn{
+             border-radius: 50%;
+
+             background-color: darkgray;
+        }
+
+        *:has(#show-addon-bttn input:checked) .spawn-models{
+            display: flex;
+        }
+        *:has(#show-addon-bttn input:checked) .addons{
+            max-width: 27%;
+           
+        }
+
+        
+       
+        #show-addon-bttn{
+            --transition-speed: 0.3s;
+            transition: all var(--transition-speed);
+        }
+        #show-addon-bttn:hover{
+           background-color: lightgray; 
+           
+        }
+        
+       
+        .addons ul{
+
+            border-top: var(--gap) solid gray;
+            border-bottom: var(--gap) solid gray;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+        .addon-ctrl{
+            margin-top: var(--gap);
+            padding: var(--gap);
+            background-color: gray;
+        }
+
+        .addon-highlight{
+            background-color: lightgray;
+        }
+        
+        p{
+            margin: 0;
+        }
+
+
+        *:has(>#spawned-model-path){
+            flex-grow: 1;
+            
+        }
+        
+
+
+        #spawned-model-path{
+            margin-bottom: var(--gap);
+            display: flex;
+            gap: 1ch;
+        }
+
+        #spawned-model-path span:nth-of-type(1){
+            white-space: nowrap;
+        }
+      
+        
+
+        #spawned-model-path span:nth-of-type(2) {
+            overflow: auto;
+            flex-grow: 1;
+           
+        }
+
+
+      
+        
+        
+        
+      
+      
+    </style>
+</head> 
+<body>
+   
+    <div class="body container">
+        <label id="show-addon-bttn" class="hide">
+            <input id="show-addon-bttn-click" type="checkbox">
+            <svg  viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M12.7071 14.7071C12.3166 15.0976 11.6834 15.0976 11.2929 14.7071L6.29289 9.70711C5.90237 9.31658 5.90237 8.68342 6.29289 8.29289C6.68342 7.90237 7.31658 7.90237 7.70711 8.29289L12 12.5858L16.2929 8.29289C16.6834 7.90237 17.3166 7.90237 17.7071 8.29289C18.0976 8.68342 18.0976 9.31658 17.7071 9.70711L12.7071 14.7071Z" fill="#000000"></path>
+            </svg>
+            
+            
+        </label>
+       <section class="spawn-models">
+           
+            <h2></h2>
+            
+            <section>
+                <h3>Models: </h3>
+                <div id="spawned-model-path">
+                    <span>Selected model path:</span>
+                    <span id="spawned-model-path-text"></span>
+                </div>
+                <div>
+                    
+                </div>
+            </section>
+            <div class="addon-ctrl">
+                <button class="addon-remove-bttn">Remove</button>
+            </div>
                 
-                img{
-                    width: 100%;
-                    cursor: pointer;
-                }
-                body{
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: 4px;
-                    align-content: flex-start;
-                }
-               
-            </style>
-        </head>
-        <body style="margin: 4px; background-color: rgb(100,100,100);">
+            
+        </section>
+        <section class="addons">
+                <h2>Addons</h2>
+                
+                        <ul>
+                            <li id="addon-li" hidden>
+                                <img src="" alt="">
+                                <h3>s</h3>
+                            </li>
+                            
+                        </ul>
+                
+                
+                    
+                
+                
+                
+            </section>
+    </div>
+    <script>
+    
+    
+    const spawnedModelPathElem = document.getElementById('spawned-model-path')
+    const spawnedModelPathTextElem = document.getElementById('spawned-model-path-text')
+
+    const addonRemoveBttnElem = document.querySelector('.addon-remove-bttn')
+    
+    const showAddonBttnElem = document.getElementById('show-addon-bttn')
+    const showAddonBttnClickElem = document.getElementById('show-addon-bttn-click')
+    const spawnModelsTitleElem = document.querySelector('.spawn-models h2')
+    const addonsListElem = document.querySelector('.addons ul')
+    const addonTemplateElem = document.getElementById('addon-li')
+   
+
+
+    let displayedMdls = []
+    
+
+
+    
+    const spawnModelTemplateElement = document.getElementById('spawn-model')
+
+    const dupeElem = template=>{
+        let elem = template.cloneNode(true)
+        elem.removeAttribute('hidden')
+        return elem
+    }
+
+    const clearAllElems = (elem)=>{
+        while(elem.lastElementChild){
+            elem.removeChild(elem.lastElementChild)
+        }
+    }
+
+
+
+
+
+    
+
+   
+    let selectedAddon
+
+
+    
+
+    const displayMdls = (addonName,mdls)=>{
+        console.log(addonName)
+        spawnModelsTitleElem.textContent = addonName
+        
+        displayedMdls = mdls
+        
+      
+        clearAllElems(spawnModelsListElem)
+        for (let i = 0; i < mdls.length; i++){
+            spawnModelsListElem.appendChild(mdls[i].elem)
+        }
+    }
+
+
+    let lua = {}
+    
+
+    class Mdl{
+        elem
+        path
+        constructor(path){
+            
+            this.path = path
+            
+
+            
 
 
             
-                    <div>
-                   
-                        <img src="https://images.steamusercontent.com/ugc/760472985785287638/5319B2E8CC39B626EA199DC2CCACDA4481E1E96D/">
-                        <div>
-                            <span>hi</span>
-                        </div>
-                        
-                    </div>
-      
-                
-                 <div>
-                    <img src="https://images.steamusercontent.com/ugc/760472985785287638/5319B2E8CC39B626EA199DC2CCACDA4481E1E96D/">
-                </div>
-                
-                
+            
+        }
+    }
+
+    showAddonBttnClickElem.onclick = e=>{
+        selectedAddon.rootElem.scrollIntoView()
+    }
+
     
 
+    class Addon{
+        rootElem
+        imgElem
+        nameElem
+        mdls = []
+        next
+        prev
+
+        append(addon){
+            addon.prev = this
+            addon.next = this.next
+            this.next = addon
+            return addon
+        }
+        remove(){
+            this.rootElem.remove()
+                showAddonBttnElem.classList.add('hide')
+                showAddonBttnClickElem.checked = false
+            if (this.prev){
+                this.prev.next = this.next
+                if (this.next){
+                    this.next.rootElem.scrollIntoView()
+                    this.next.prev = this.prev
+                }
+            }
+            
+        }
+        constructor(name,iconImgSrc,mdls){
+            this.rootElem = dupeElem(addonTemplateElem)
+            addonsListElem.appendChild(this.rootElem)
+            this.imgElem = this.rootElem.querySelector('img')
+            this.nameElem = this.rootElem.querySelector('h3')
+            
+
+            
+
+            this.nameElem.textContent = name
+            this.imgElem.src = iconImgSrc
+            this.mdls = mdls
+            this.rootElem.onclick = e=>{
                 
-                 
-        </body
+                console.log(this)
+                
+                if (selectedAddon){
+                    selectedAddon.rootElem.classList.remove('addon-highlight')
+                }
+
+                if (selectedAddon != this){
+                    spawnedModelPathElem.classList.add('hide')
+                    spawnedModelPathTextElem.textContent = ''
+                   // 'sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss'
+                }
+                
+                
+                selectedAddon = this
+                showAddonBttnElem.classList.remove('hide')
+                selectedAddon.rootElem.classList.add('addon-highlight')
+                showAddonBttnClickElem.checked = true
+                spawnModelsTitleElem.textContent = this.nameElem.textContent
+                this.rootElem.scrollIntoView()
+                
+            }
+        }
+    }
+
+
+    addonRemoveBttnElem.onclick = e=>{
+        console.log('remove adddon')
+        //add 
+        
+        selectedAddon.remove()
+
+
+    }
+
+    let lastAddon = new Addon('monikassssssssssssssssssssssssssssssss ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss','https://placewaifu.com/image/200',[new Mdl('kew'),new Mdl('kew'),new Mdl('kew')])
+
+    let firstAddon = lastAddon
+
+
+    
+
+    lastAddon = lastAddon.append(new Addon('lar',`https://placewaifu.com/image/${Math.floor(Math.random()*1000)}`,[new Mdl('foossssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss')]))
+
+    
+    lastAddon = lastAddon.append(new Addon('lar',`https://placewaifu.com/image/${Math.floor(Math.random()*1000)}`,[new Mdl('foo')]))
+
+
+  
+
+    lastAddon = lastAddon.append(new Addon('lar',`https://placewaifu.com/image/${Math.floor(Math.random()*1000)}`,[new Mdl('foo'),new Mdl('foo'),
+        new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),
+        new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),
+        new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo')
+    ]))
+
+    
+    lastAddon = lastAddon.append(new Addon('lar',`https://placewaifu.com/image/${Math.floor(Math.random()*1000)}`,[new Mdl('foo'),new Mdl('foo'),
+        new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),
+        new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),
+        new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo')
+    ]))
+
+    lastAddon = lastAddon.append(new Addon('lar',`https://placewaifu.com/image/${Math.floor(Math.random()*1000)}`,[new Mdl('foo'),new Mdl('foo'),
+        new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),
+        new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),
+        new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo')
+    ]))
+
+    lastAddon = lastAddon.append(new Addon('lar',`https://placewaifu.com/image/${Math.floor(Math.random()*1000)}`,[new Mdl('foo'),new Mdl('foo'),
+        new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),
+        new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),
+        new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo'),new Mdl('foo')
+    ]))
+
+
+    console.log(lastAddon)
+    console.log(firstAddon)
+
+
+
+</script>
+</body>
+
+</html>

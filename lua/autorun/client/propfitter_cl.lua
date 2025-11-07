@@ -41,7 +41,7 @@ file.CreateDir('cache/workshop')
 
 
 
-local workshopItems = {}
+local addons = {}
 
 
 
@@ -66,7 +66,7 @@ local modelsDisplay
 local searchBar
 local contentUrl
 
-local gettingItem = false
+local gettingaddon = false
 local searchMode = false
 
 
@@ -231,9 +231,9 @@ function menuCreate()
 
     searchBar:AddFunction('propfitter','getWorkshopAddon',function(url)
        
-        if not gettingItem then
+        if not gettingaddon then
             hideWorkshop()
-             gettingItem = true
+             gettingaddon = true
         end
         if url == '' then
             print(contentUrl,'addon id')
@@ -409,7 +409,7 @@ function menuCreate()
     
 
 
-    //notification.AddLegacy(' Item upload reached\n Please wait till next server restart\n to re-upload items.',NOTIFY_ERROR,15)
+    //notification.AddLegacy(' addon upload reached\n Please wait till next server restart\n to re-upload addons.',NOTIFY_ERROR,15)
 
     
    
@@ -530,7 +530,7 @@ local function window()
     
     //htmlPanel:OpenURL('https://cdn.steamusercontent.com/ugc/945093088397505143/D2DF9614A920133369A336147E499A64B8200D6D/')
 
-    //notification.AddLegacy(' Item upload reached\n Please wait till next server restart\n to re-upload items.',NOTIFY_ERROR,15)
+    //notification.AddLegacy(' addon upload reached\n Please wait till next server restart\n to re-upload addons.',NOTIFY_ERROR,15)
 
   
     blurAnimStart = SysTime()
@@ -583,92 +583,106 @@ end)]]
 
 
 
+gameevent.Listen( "client_disconnect" )
+hook.Add('client_disconnect','propfitter_save',function()
+    writeFile('propfitter/addons.json',util.TableToJSON(addons))
+end)
+
+
+hook.Add('InitPostEntity','propfitter_init',function()
+   // file.Read('propfitter/addons.dat','DATA')
+
+
+   local contents = file.Read('propfitter/addons.dat')
+   if not contents then
+        writeFile('propfitter/addons.json','')
+    else
+        local addons = util.JSONToTable(contents)
+        if addons then
+            local mostRecentVersion
+            for key,addon in pairs(addons) do
+                mostRecentVersion = addon.versions[1]
+                local version
+                for i = 2, #addon.versions do
+                    version = addon.versions[i]
+                    file.Delete('cache/workshop/'..addon.id..version)
+                end
+            end
+        else
+            clearAllFiles('cache/workshop')
+            writeFile('propfitter/addons.json','')
+        end
+    end
+
+
+end)
 net.Receive('propfitter_workshopErr',function()
     //local code = net.ReadInt(8)
 
     blurAnimStart = SysTime()
-      mainFrame:MoveToBack()
+    mainFrame:MoveToBack()
     errSpace:Show()
     errPopup:Show()
 
-
-
-   // print(errMsgs[net.ReadInt(8)])
     errHtml:Call('errMsgDisplay.textContent = "'..errMsgs[net.ReadInt(8)]..'"')
 
 end)
 
 
-local function loadModels(mountedFls,id)
 
-    local item = workshopItems[id]
-    if item then
+
+local function loadModels(mountedFls,id,name)
+
+    local addon = addons[id]
+    if addon then
         return
     end
+
     
-    http.Post( "https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/", { ['itemcount'] = '1', ['publishedfileids[0]'] = id },
-    function(body)
-        local response = util.JSONToTable(body).response
-        if not response then
-            return
+    addon = {mdls={},id=id,name=name}
+
+    for i,v in ipairs(mountedFls) do
+        if string.GetExtensionFromFilename(string.lower(v)) == 'mdl' then
+            table.insert(addon.mdls,v)
         end
+    end
 
-        local info = response.publishedfiledetails[1]
 
-		if info.result ~= 1 then
-			return
-		end
+    print('addon ',name)
+    PrintTable(addon.mdls)
 
-        item = {mdls={},addonImgLink=info.preview_url,title=info.title}
-
-        for i,v in ipairs(mountedFls) do
-            // print(v)
-            if string.GetExtensionFromFilename(string.lower(v)) == 'mdl' then
-                table.insert(item.mdls,v)
-            end
-        end
-        workshopItems[id] = item
-    end,
-    function(errMsg)
-
-    end)
+    addons[id] = addon
     
 end
 
 
 net.Receive('propfitter_workshopGet',function()
 
-    print('\n[propfitter] downloading item')
+    print('\n[propfitter] downloading addon')
 
 
     local id = net.ReadUInt64()
-    local latestUpdated = net.ReadInt(32)
+    local name = net.ReadString()
+    local version = net.ReadInt(32)
 
 
     print(id..'\n')
 
 
-    local gmaPath = 'cache/workshop/'..id..tostring(latestUpdated)..'.gma'
+    local gmaPath = 'cache/workshop/'..id..tostring(version)..'.gma'
 
     if file.Exists(gmaPath,'DATA') then
-
-        hideWorkshop()
-        gettingItem = false
-        local err, mountedFls = game.MountGMA('data/'..gmaPath)
         if mountedFls then
-            loadModels(mountedFls,id)
+            loadModels(mountedFls,id,name)
         end
        
         return;
     end
 
     steamworks.DownloadUGC(id,function(path,fl)
-        hideWorkshop()
-        print('failed to download on client')
-        gettingItem = false
         local err,mountedFls = mountGMA(id,fl:Read(),gmaPath,false)
         if mountedFls then
-            loadModels(mountedFls,id)
+            loadModels(mountedFls,id,name)
         end
        
         
@@ -677,6 +691,27 @@ net.Receive('propfitter_workshopGet',function()
 		
 end)
 
+
+local function parseAddonID(str)
+    if string.sub(str,9,50) == 'steamcommunity.com/sharedfiles/filedetails' then
+        return string.match(str,'?id=([0-9]+)',50)
+    end
+
+    if string.sub(str,1,42) == 'steamcommunity.com/sharedfiles/filedetails' then
+        return string.match(str,'?id=([0-9]+)',42)
+    end
+end
+
+concommand.Add('propfitter',function(plr,cmd,args)
+    print(cmd)
+    PrintTable(args)
+
+    net.Start('propfitter_workshopGet')
+    net.WriteUInt64(parseAddonID(args[1]))
+    net.SendToServer()
+end,function(cmd,args)
+    return {cmd..' "[URL to workshop addon, GMA download or addon ID]"'}
+end)
 
 concommand.Add('propfitter_test',window)
 
