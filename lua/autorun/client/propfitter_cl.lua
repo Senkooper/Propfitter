@@ -1,10 +1,5 @@
 
 
-
-
-
-
-
 include('propfitter/shared.lua')
 require('senkoocore/gui')
 print('[propfitter] shared loaded\n')
@@ -34,387 +29,20 @@ end
 
 
 file.CreateDir('cache/workshop')
-
-
-
-
-
-
-
 local addons = {}
+local errSpace 
+
+
+local errPopup
+local errHtml
 
 
 
 
- local defFrameStyle = senkoocoreGUI.style.getDefFrame()
 
-
-
-       local errSpace 
-
-
-    local errPopup
-    local errHtml
-
-    print(LocalPlayer(),'asdsadsadsadsadsadsa')
-local blurAnimStart
-
-local mainFrame
-local mainHtml
-local addonsDisplay
-local modelsDisplay
-local searchBar
-local contentUrl
-
-local gettingaddon = false
-local searchMode = false
-
-
-
-function createModelPanel()
-    local modelIcon = vgui.Create('DModelPanel',modelsDisplay)
-
-    modelIcon:SetSize(140,140)
-    modelIcon:SetModel(LocalPlayer():GetModel())
-end
-
-function hideWorkshop()
-    searchMode = false
-    searchBar:Call([[input.style.display = 'none',
-            bttn.style.display = 'none'
-            refresh.style.display = 'none'
-            workshopBttn.textContent = 'Workshop']])
-
-    modelsDisplay:Show()
-    addonsDisplay:Show()   
-    mainHtml:Hide()
-end
 
 
 function menuCreate()
-
-     mainFrame = senkoocoreGUI.frame(defFrameStyle.paint)
-
-
-    
-    mainFrame:SetDeleteOnClose(false );
-
-    mainFrame:SetSize(1000,500)
-    mainFrame:Center()
-    mainFrame:SetScreenLock(true)
-  //  mainFrame:SetDraggable(false)
-
-
-    
-
-    mainHtml = vgui.Create('DHTML',mainFrame)
-
-    mainHtml:Hide()
-
-    
-
-    
-
-
-
-    mainFrame:Hide()
-
-      
-
-
-
-   
- 
-    addonsDisplay = vgui.Create('DHTML',mainFrame)
-
-
-    searchBar = vgui.Create('DHTML',mainFrame)
-     modelsDisplay = vgui.Create('DHTML',mainFrame)
-  
-    
-    modelsDisplay:SetHTML([[
-        <body style="margin 0; background-color: rgb(100,100,100)">
-
-        </body>
-    ]])
-
-    addonsDisplay:AddFunction('propfitter','addonHover',function()
-        addonsDisplay:SetToolTip('sadsadsad fdasfdsf ')
-    
-        print('dasds')
-        
-    end)
-
-    addonsDisplay:SetHTML([[
-
-    
-        <head>
-            <style>
-                *{
-                    box-sizing: border-box;
-                }
-                body{
-                    font-family: Arial, Helvetica, sans-serif;
-                }
-                body > img{
-                    width: calc(100% / 2 - 8px / 2);
-                     cursor: pointer;
-                }
-
-                
-                
-              
-                body{
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: 4px;
-                    align-content: flex-start;
-                }
-               
-            </style>
-        </head>
-        <body style="margin: 4px; background-color: rgb(100,100,100); overflow-x: hidden;">
-            <img onmouseenter="propfitter.addonHover()" src="https://images.steamusercontent.com/ugc/760472985785287638/5319B2E8CC39B626EA199DC2CCACDA4481E1E96D/">
-        </body
-    ]])
-
-     modelsDisplay:Dock(FILL)
-    modelsDisplay:DockMargin(0,0,8,0)
-    addonsDisplay:Dock(RIGHT)
-    addonsDisplay:SetWide(400)
-
-
-
-        searchBar:Dock(BOTTOM)
-    searchBar:SetTall(80)
-
-
-   
-
-
-
-    //searchBar:Hide();
-
-
-    
-
-    mainHtml:OpenURL('https://steamcommunity.com/app/4000/workshop')
-    
-    searchBar:AddFunction('propfitter','workshop',function()
-        mainHtml:OpenURL('https://steamcommunity.com/app/4000/workshop')
-
-        
-
-        
-    end)
-
-    searchBar:AddFunction('propfitter','back',function()
-
-        if searchMode then
-            hideWorkshop()
-           return
-        end
-        searchMode = true
-        
-        addonsDisplay:Hide()
-        modelsDisplay:Hide()
-
-        mainHtml:Show()
-
-        searchBar:Call([[input.style.display = 'unset'
-        bttn.style.display = 'unset'
-        refresh.style.display = 'unset'
-        workshopBttn.textContent = 'Back']])
-    end)
-
-
-
-    searchBar:AddFunction('propfitter','getWorkshopAddon',function(url)
-       
-        if not gettingaddon then
-            hideWorkshop()
-             gettingaddon = true
-        end
-        if url == '' then
-            print(contentUrl,'addon id')
-            net.Start('propfitter_workshopGet')
-            net.WriteUInt64(contentUrl)
-            net.SendToServer()
-            return
-        end
-
-       
-        if string.sub(url,9,50) == 'steamcommunity.com/sharedfiles/filedetails' then
-            net.Start('propfitter_workshopGet')
-            net.WriteUInt64(string.match(url,'[0-9]+',56))
-            net.SendToServer()
-            return
-        end
-
-         if string.sub(url,1,42) == 'steamcommunity.com/sharedfiles/filedetails' then
-            net.Start('propfitter_workshopGet')
-            net.WriteUInt64(string.match(url,'[0-9]+',48))
-            net.SendToServer()
-            return
-        end
-
-        print(url,'gma link')
-    end)
-
-   
-    searchBar:Call([[
-        var bttn = document.getElementById("bttn")
-        var input = document.getElementById('input')
-        var refresh = document.getElementById('refresh')
-        var workshopBttn = document.getElementById('workshopBttn')
-
-
-        console.log('FUDJSAKDJSAURKSA URMOTHER')
-        
-
-        var showFileDetails = false
-     
-        function onInput(){
-            
-            if (input.value == '' && !showFileDetails){
-                bttn.style.visibility = 'hidden'
-                return
-            }
-
-            bttn.style.visibility = 'visible'
-        }
-
-        function openFileDetails(){
-            input.value = ''
-            showFileDetails = true
-            bttn.style.visibility = 'visible'
-        }
-
-        function defaultLayout(){
-            input.value = ''
-            showFileDetails = false
-            bttn.style.visibility = 'hidden'
-        }
-
-        function openWorkshop(){
-            showFileDetails = false
-            propfitter.workshop()
-            defaultLayout()
-           
-        }
-
-        function submitClick(){
-            bttn.style.visibility = 'hidden'
-            propfitter.getWorkshopAddon(input.value)
-         
-            
-        }
-    
-    ]])
-
-
-
- 
-
-     function mainHtml:OnBeginLoadingDocument(url)
-        //print(url)
-        
-       
-        print('loading',url)
-       
-        if string.sub(url,9,26) == 'steamcommunity.com' then
-
-             //print(string.sub(url,9,26))
-            //print(string.sub(url,28,50) )
-            if string.sub(url,28,50) == 'sharedfiles/filedetails' then
-
-                contentUrl = string.match(url,'[0-9]+',56)
-                searchBar:Call('openFileDetails()')
-             
-                return
-            end
-
-            //print('huhWTFPLSGO BACK TO ORGIN\n\n\n\n\n',url)
-        
-
-            searchBar:Call('defaultLayout()')
-        end
-        
-    end
-
-
-    searchBar:SetHTML([[
-
-        <style>
-            *{
-                box-sizing: border-box;
-            }
-            input:focus{
-                outline: unset;
-            }
-            button:focus{
-                outline: unset;
-            }
-            
-            button{
-                margin-top: 3px;
-                transition: all 0.07s;
-                border-radius: 8px;
-                border: 2px solid rgb(175,175,175);
-                margin-bottom: 6px;
-                background-color:white;
-            }
-
-            button:hover{
-                box-shadow: rgba(0,0,0,0.3) 0 6px 6px;
-                transform: translateY(-3px);
-            }
-
-
-            button:active{
-                box-shadow: none; 
-                transform: translateY(0);
-            }
-        </style>
-        <body style='margin-top: 0; margin-bottom: 0; height: 100%; padding-top: 8px;'>
-            
-            <div style=' width: 100%'>
-                <button id='workshopBttn' onclick='propfitter.back()' style='height: 26px; width: 74px; margin-bottom: 6px; background-color: white;'>Workshop</button>
-                <button id='refresh' onclick='openWorkshop()' style='height: 26px; width: 74px; margin-bottom: 6px; background-color: white; display: none'>Refresh</button>
-            </div>
-
-            <div style=' width: 100%'>
-                <input id='input' oninput='onInput()' type='text' style='height: 26px; width: 46%; background-color: white; border: 2px solid rgb(175,175,175); border-radius: 8px; font-size: 16px; padding: 0px 5px; margin-bottom: 6px; display: none' placeholder='link to addon file'>
-                <button id='bttn' onclick='submitClick()' style='height: 26px; margin-bottom: 6px; visibility: hidden; display: none; background-color: white;'>Submit</button>
-            </div>
-            
-            
-            
-            
-        </body>
-
-    ]])
-    
-
-
-   
-    
-
-    mainHtml:Dock(FILL)
-
-    
-
-
-
-    
-
-
-    //notification.AddLegacy(' addon upload reached\n Please wait till next server restart\n to re-upload addons.',NOTIFY_ERROR,15)
-
-    
-   
-    //mainHtml:OpenURL('https://steamcommunity.com/app/4000/workshop/')
-
     errSpace = vgui.Create('Panel')
     errSpace:Hide()
     errSpace:Dock(FILL)
@@ -425,7 +53,9 @@ function menuCreate()
     
      errPopup = senkoocoreGUI.frame(function(self,w,h)
         Derma_DrawBackgroundBlur(self,blurAnimStart)
-        defFrameStyle.paint(self,w,h)
+
+        
+        //defFrameStyle.paint(self,w,h)
     end)
     errPopup:Hide()
     errPopup:SetSize(330,170)
@@ -571,7 +201,25 @@ end
 
 gameevent.Listen( "client_disconnect" )
 hook.Add('client_disconnect','propfitter_save',function()
-    writeFile('propfitter/addons.json',util.TableToJSON(addons))
+
+    local contents = file.Read('propfitter/addons.json','DATA')
+
+    if not contents then
+         writeFile('propfitter/addons.json','')
+    else
+        local prevAddons = util.JSONToTable(contents)
+
+        if prevAddons then
+            for key, addon in pairs(prevAddons) do
+                if not addons[key] then
+                    addons[key] = addon
+                end
+            end
+        end
+        
+        writeFile('propfitter/addons.json',util.TableToJSON(addons))
+    end
+    
 end)
 
 
@@ -579,24 +227,27 @@ hook.Add('InitPostEntity','propfitter_init',function()
    // file.Read('propfitter/addons.dat','DATA')
 
 
-   local contents = file.Read('propfitter/addons.dat')
+   local contents = file.Read('propfitter/addons.json')
    if not contents then
         writeFile('propfitter/addons.json','')
     else
-        local addons = util.JSONToTable(contents)
-        if addons then
-            local mostRecentVersion
-            for key,addon in pairs(addons) do
-                mostRecentVersion = addon.versions[1]
-                local version
-                for i = 2, #addon.versions do
-                    version = addon.versions[i]
-                    file.Delete('cache/workshop/'..addon.id..version)
+        addons = util.JSONToTable(contents)
+
+     
+        if not addons or not pcall(function()
+                for key,addon in pairs(addons) do
+                    local version
+                    for i = 1, #addon.versions-1 do
+                        version = addon.versions[i]
+                        file.Delete(string.format(addonFilePathFormat,key,version))
+                    end
+                    addon.versions = {addon.versions[#addon.versions]}
                 end
-            end
-        else
-            clearAllFiles('cache/workshop')
-            writeFile('propfitter/addons.json','')
+        end) then
+                addons = {}
+                clearAllFiles('cache/workshop')
+                writeFile('propfitter/addons.json','')
+
         end
     end
 
@@ -606,7 +257,6 @@ net.Receive('propfitter_workshopErr',function()
     //local code = net.ReadInt(8)
 
     blurAnimStart = SysTime()
-    mainFrame:MoveToBack()
     errSpace:Show()
     errPopup:Show()
 
@@ -617,29 +267,36 @@ end)
 
 
 
-local function loadModels(mountedFls,id,name)
+local function loadModels(mountedFls,id,name,version,exists)
+
+
 
     local addon = addons[id]
-    if addon then
-        return
-    end
-
     
-    addon = {mdls={},id=id,name=name}
+    if not addon then
+        addon = {mdls={},name=name,versions={version}}
 
-    for i,v in ipairs(mountedFls) do
-        if string.GetExtensionFromFilename(string.lower(v)) == 'mdl' then
-            table.insert(addon.mdls,v)
+        for i,v in ipairs(mountedFls) do
+            if string.GetExtensionFromFilename(string.lower(v)) == 'mdl' then
+                table.insert(addon.mdls,v)
+            end
         end
+       addons[id] = addon
+    else
+        if not exists then
+            table.insert(addon.versions,version)
+        end
+        
     end
-
 
     print('addon ',name)
     PrintTable(addon.mdls)
-
-    addons[id] = addon
+    print('\naddons: ')
+    PrintTable(addons)
     
 end
+
+
 
 
 net.Receive('propfitter_workshopGet',function()
@@ -651,35 +308,48 @@ net.Receive('propfitter_workshopGet',function()
     local name = net.ReadString()
     local version = net.ReadInt(32)
     local previewImgUrl = net.ReadString()
+    local loadLua = net.ReadBool()
 
 
-    print(id..'\n')
-
-
-    local gmaPath = 'cache/workshop/'..id..tostring(version)..'.gma'
-
+    local gmaPath = string.format(addonFilePathFormat,id,version)
+   
     if file.Exists(gmaPath,'DATA') then
+        local success,mountedFls = game.MountGMA('data/'..gmaPath)
+        
         if mountedFls then
-            loadModels(mountedFls,id,name)
+           
+            loadModels(mountedFls,'addon_'..id,name,version,true)
         end
+      
        
-        return;
+    else
+        
+        steamworks.DownloadUGC(id,function(path,fl)
+           
+            local err,mountedFls = mountGMA(id,fl:Read(),gmaPath,false,loadLua)
+            if mountedFls then
+                loadModels(mountedFls,'addon_'..id,name,version)
+            end
+        
+            
+        end)
     end
 
-    steamworks.DownloadUGC(id,function(path,fl)
-        local err,mountedFls = mountGMA(id,fl:Read(),gmaPath,false)
-        if mountedFls then
-            loadModels(mountedFls,id,name)
-        end
-       
-        
-    end)
+
+    
 
 		
 end)
 
 
 local function parseAddonID(str)
+
+    if not str then
+        return nil
+    end
+
+    str = string.Trim(str)
+
     if string.sub(str,9,50) == 'steamcommunity.com/sharedfiles/filedetails' then
         return string.match(str,'?id=([0-9]+)',50)
     end
@@ -687,17 +357,29 @@ local function parseAddonID(str)
     if string.sub(str,1,42) == 'steamcommunity.com/sharedfiles/filedetails' then
         return string.match(str,'?id=([0-9]+)',42)
     end
+    
+    return string.match(str,'[0-9]+')
 end
 
-concommand.Add('propfitter',function(plr,cmd,args)
-    print(cmd)
-    PrintTable(args)
 
+local argMsg = 'URL to workshop addon or addon ID'
+local cmdHelper = string.format('propfitter "[%s]"',argMsg)
+concommand.Add('propfitter',function(plr,cmd,args)
+    if #args == 0 then
+        print(string.format('Missing argument. %s',cmdHelper))
+        return
+    end
+    local addonID = parseAddonID(args[1])
+
+    if not addonID then
+        print(string.format('Invalid argument. %s',cmdHelper))
+        return
+    end
     net.Start('propfitter_workshopGet')
-    net.WriteUInt64(parseAddonID(args[1]))
+    net.WriteUInt64(addonID)
     net.SendToServer()
 end,function(cmd,args)
-    return {cmd..' "[URL to workshop addon, GMA download or addon ID]"'}
+    return {cmdHelper}
 end)
 
 concommand.Add('propfitter_test',window)

